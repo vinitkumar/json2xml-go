@@ -15,14 +15,81 @@ A Go port of the Python [json2xml](https://github.com/vinitkumar/json2xml) libra
 - XML namespaces support
 - XPath 3.1 json-to-xml format support
 - Pretty printing with indentation
+- **Command-line tool** for easy conversion
 
 ## Installation
+
+### As a Library
 
 ```bash
 go get github.com/vinitkumar/json2xml-go
 ```
 
-## Usage
+### As a CLI Tool
+
+```bash
+go install github.com/vinitkumar/json2xml-go/cmd/json2xml@latest
+```
+
+## CLI Usage
+
+The `json2xml` command-line tool provides an easy way to convert JSON to XML from the terminal.
+
+### Basic Examples
+
+```bash
+# Convert a JSON file to XML
+json2xml data.json
+
+# Convert with custom wrapper element
+json2xml -w root data.json
+
+# Read JSON from string
+json2xml -s '{"name": "John", "age": 30}'
+
+# Read from stdin
+cat data.json | json2xml -
+
+# Output to file
+json2xml -o output.xml data.json
+
+# Use XPath 3.1 format
+json2xml -x data.json
+
+# Disable pretty printing and type attributes
+json2xml -p=false -t=false data.json
+
+# Without item wrapping for lists
+json2xml -i=false data.json
+```
+
+### CLI Options
+
+```
+Input Options:
+  -u, --url string        Read JSON from URL
+  -s, --string string     Read JSON from string
+  [input-file]            Read JSON from file (use - for stdin)
+
+Output Options:
+  -o, --output string     Output file (default: stdout)
+
+Conversion Options:
+  -w, --wrapper string    Wrapper element name (default "all")
+  -r, --root              Include root element (default true)
+  -p, --pretty            Pretty print output (default true)
+  -t, --type              Include type attributes (default true)
+  -i, --item-wrap         Wrap list items in <item> elements (default true)
+  -x, --xpath             Use XPath 3.1 json-to-xml format
+  -c, --cdata             Wrap string values in CDATA sections
+  -l, --list-headers      Repeat headers for each list item
+
+Other Options:
+  -v, --version           Show version information
+  -h, --help              Show help message
+```
+
+## Library Usage
 
 ### Basic Usage
 

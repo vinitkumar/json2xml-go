@@ -149,20 +149,9 @@ func KeyIsValidXML(key string) bool {
 	testXML := fmt.Sprintf(`<?xml version="1.0" encoding="UTF-8" ?><%s>foo</%s>`, key, key)
 	decoder := xml.NewDecoder(strings.NewReader(testXML))
 	for {
-		_, err := decoder.Token()
-		if err != nil {
-			return false
-		}
-		if err == nil {
-			// Check if we've parsed successfully
-			break
-		}
-	}
-	// Actually validate by trying to parse it
-	decoder = xml.NewDecoder(strings.NewReader(testXML))
-	for {
 		tok, err := decoder.Token()
 		if err != nil {
+			// EOF means we successfully parsed all tokens
 			if err.Error() == "EOF" {
 				return true
 			}

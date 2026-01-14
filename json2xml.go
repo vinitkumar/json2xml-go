@@ -143,14 +143,13 @@ func (j *Json2xml) ToXMLString() (string, error) {
 		return "", nil
 	}
 
-	switch v := result.(type) {
-	case string:
-		return v, nil
-	case []byte:
-		return string(v), nil
-	default:
-		return fmt.Sprintf("%v", v), nil
+	if s, ok := result.(string); ok {
+		return s, nil
 	}
+	if b, ok := result.([]byte); ok {
+		return string(b), nil
+	}
+	return "", nil
 }
 
 // ToXMLBytes converts the data to XML and returns it as bytes.
@@ -163,14 +162,13 @@ func (j *Json2xml) ToXMLBytes() ([]byte, error) {
 		return nil, nil
 	}
 
-	switch v := result.(type) {
-	case string:
-		return []byte(v), nil
-	case []byte:
-		return v, nil
-	default:
-		return []byte(fmt.Sprintf("%v", v)), nil
+	if s, ok := result.(string); ok {
+		return []byte(s), nil
 	}
+	if b, ok := result.([]byte); ok {
+		return b, nil
+	}
+	return nil, nil
 }
 
 // ConvertToXML is a convenience function to convert JSON data to XML.
