@@ -16,12 +16,12 @@ func TestReadFromJSON(t *testing.T) {
 		if data == nil {
 			t.Fatal("expected data, got nil")
 		}
-		
+
 		m, ok := data.(map[string]any)
 		if !ok {
 			t.Fatalf("expected map[string]any, got %T", data)
 		}
-		
+
 		if _, exists := m["boolean"]; !exists {
 			t.Error("expected 'boolean' key in data")
 		}

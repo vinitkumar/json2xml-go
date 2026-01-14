@@ -50,13 +50,13 @@ type Options struct {
 // DefaultOptions returns the default conversion options.
 func DefaultOptions() Options {
 	return Options{
-		Root:       true,
-		CustomRoot: "root",
-		IDs:        false,
-		AttrType:   true,
-		ItemWrap:   true,
-		ItemFunc:   DefaultItemFunc,
-		CDATA:      false,
+		Root:        true,
+		CustomRoot:  "root",
+		IDs:         false,
+		AttrType:    true,
+		ItemWrap:    true,
+		ItemFunc:    DefaultItemFunc,
+		CDATA:       false,
 		ListHeaders: false,
 		XPathFormat: false,
 	}
@@ -654,7 +654,7 @@ func DictToXML(obj any, opts Options) []byte {
 		xmlContent := ConvertToXPath31(obj, "")
 		var output bytes.Buffer
 		output.WriteString(`<?xml version="1.0" encoding="UTF-8" ?>`)
-		
+
 		if strings.HasPrefix(xmlContent, "<map") {
 			xmlContent = strings.Replace(xmlContent, "<map", fmt.Sprintf(`<map xmlns="%s"`, XPathFunctionsNS), 1)
 		} else if strings.HasPrefix(xmlContent, "<array") {
@@ -732,12 +732,12 @@ func PrettyPrint(xmlBytes []byte) (string, error) {
 	if !strings.HasPrefix(result, "<?xml") {
 		result = `<?xml version="1.0" encoding="UTF-8"?>` + "\n" + result
 	}
-	
+
 	// Ensure proper formatting with newlines after declaration
 	re := regexp.MustCompile(`<\?xml[^?]*\?>`)
 	result = re.ReplaceAllStringFunc(result, func(s string) string {
 		return s + "\n"
 	})
-	
+
 	return result, nil
 }

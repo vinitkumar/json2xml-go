@@ -387,7 +387,7 @@ func TestDictToXML(t *testing.T) {
 		opts := DefaultOptions()
 		opts.AttrType = false
 		result := DictToXML(data, opts)
-		
+
 		expected := `<?xml version="1.0" encoding="UTF-8" ?><root><mock>payload</mock></root>`
 		if string(result) != expected {
 			t.Errorf("expected %s, got %s", expected, string(result))
@@ -400,7 +400,7 @@ func TestDictToXML(t *testing.T) {
 		opts.Root = false
 		opts.AttrType = false
 		result := DictToXML(data, opts)
-		
+
 		expected := `<mock>payload</mock>`
 		if string(result) != expected {
 			t.Errorf("expected %s, got %s", expected, string(result))
@@ -413,7 +413,7 @@ func TestDictToXML(t *testing.T) {
 		opts.CustomRoot = "element"
 		opts.AttrType = false
 		result := DictToXML(data, opts)
-		
+
 		if !strings.Contains(string(result), "<element>") || !strings.Contains(string(result), "</element>") {
 			t.Errorf("expected custom root element, got %s", string(result))
 		}
@@ -424,7 +424,7 @@ func TestDictToXML(t *testing.T) {
 		opts := DefaultOptions()
 		opts.Root = false
 		result := DictToXML(data, opts)
-		
+
 		if !strings.Contains(string(result), `type="str"`) {
 			t.Errorf("expected type attribute, got %s", string(result))
 		}
@@ -436,7 +436,7 @@ func TestDictToXML(t *testing.T) {
 		opts.Root = false
 		opts.AttrType = false
 		result := DictToXML(data, opts)
-		
+
 		expected := `<bike><item>blue</item><item>green</item></bike>`
 		if string(result) != expected {
 			t.Errorf("expected %s, got %s", expected, string(result))
@@ -450,7 +450,7 @@ func TestDictToXML(t *testing.T) {
 		opts.AttrType = false
 		opts.ItemWrap = false
 		result := DictToXML(data, opts)
-		
+
 		expected := `<bike>blue</bike><bike>green</bike>`
 		if string(result) != expected {
 			t.Errorf("expected %s, got %s", expected, string(result))
@@ -465,7 +465,7 @@ func TestDictToXML(t *testing.T) {
 			"ns1": "https://www.google.de/ns1",
 		}
 		result := DictToXML(data, opts)
-		
+
 		if !strings.Contains(string(result), `xmlns:ns1="https://www.google.de/ns1"`) {
 			t.Errorf("expected namespace declaration, got %s", string(result))
 		}
@@ -479,7 +479,7 @@ func TestDictToXML(t *testing.T) {
 			"xmlns": "http://example.com",
 		}
 		result := DictToXML(data, opts)
-		
+
 		if !strings.Contains(string(result), `xmlns="http://example.com"`) {
 			t.Errorf("expected xmlns declaration, got %s", string(result))
 		}
@@ -491,7 +491,7 @@ func TestDictToXML(t *testing.T) {
 		opts.Root = false
 		opts.AttrType = false
 		result := DictToXML(data, opts)
-		
+
 		if string(result) != "<flag>true</flag>" {
 			t.Errorf("expected '<flag>true</flag>', got %s", string(result))
 		}
@@ -503,7 +503,7 @@ func TestDictToXML(t *testing.T) {
 		opts.Root = false
 		opts.AttrType = false
 		result := DictToXML(data, opts)
-		
+
 		if string(result) != "<empty></empty>" {
 			t.Errorf("expected '<empty></empty>', got %s", string(result))
 		}
@@ -520,7 +520,7 @@ func TestDictToXML(t *testing.T) {
 		opts.Root = false
 		opts.AttrType = false
 		result := DictToXML(data, opts)
-		
+
 		if !strings.Contains(string(result), "<person>") || !strings.Contains(string(result), "<name>John</name>") {
 			t.Errorf("expected nested structure, got %s", string(result))
 		}
@@ -532,7 +532,7 @@ func TestDictToXML(t *testing.T) {
 		opts.Root = false
 		opts.AttrType = false
 		result := DictToXML(data, opts)
-		
+
 		expected := "<Bicycles>Wheels &amp; Steers</Bicycles>"
 		if string(result) != expected {
 			t.Errorf("expected %s, got %s", expected, string(result))
@@ -545,7 +545,7 @@ func TestDictToXML(t *testing.T) {
 		opts := DefaultOptions()
 		opts.AttrType = false
 		result := DictToXML(data, opts)
-		
+
 		if !strings.Contains(string(result), "2023-02-15") {
 			t.Errorf("expected datetime in ISO format, got %s", string(result))
 		}
@@ -562,7 +562,7 @@ func TestDictToXML(t *testing.T) {
 		opts.Root = false
 		opts.AttrType = false
 		result := DictToXML(data, opts)
-		
+
 		if !strings.Contains(string(result), "<item><key1>value1</key1></item>") {
 			t.Errorf("expected item wrapped dicts, got %s", string(result))
 		}
@@ -575,7 +575,7 @@ func TestDictToXML(t *testing.T) {
 		opts.AttrType = false
 		opts.CDATA = true
 		result := DictToXML(data, opts)
-		
+
 		if !strings.Contains(string(result), "<![CDATA[value]]>") {
 			t.Errorf("expected CDATA wrapped value, got %s", string(result))
 		}
@@ -588,7 +588,7 @@ func TestDictToXMLXPathFormat(t *testing.T) {
 		opts := DefaultOptions()
 		opts.XPathFormat = true
 		result := DictToXML(data, opts)
-		
+
 		if !bytes.Contains(result, []byte(`xmlns="http://www.w3.org/2005/xpath-functions"`)) {
 			t.Errorf("expected XPath namespace, got %s", string(result))
 		}
@@ -610,7 +610,7 @@ func TestDictToXMLXPathFormat(t *testing.T) {
 		opts := DefaultOptions()
 		opts.XPathFormat = true
 		result := DictToXML(data, opts)
-		
+
 		if !bytes.Contains(result, []byte(`<map key="person">`)) {
 			t.Errorf("expected nested map, got %s", string(result))
 		}
@@ -621,7 +621,7 @@ func TestDictToXMLXPathFormat(t *testing.T) {
 		opts := DefaultOptions()
 		opts.XPathFormat = true
 		result := DictToXML(data, opts)
-		
+
 		if !bytes.Contains(result, []byte(`<array key="numbers">`)) {
 			t.Errorf("expected array element, got %s", string(result))
 		}
@@ -632,7 +632,7 @@ func TestDictToXMLXPathFormat(t *testing.T) {
 		opts := DefaultOptions()
 		opts.XPathFormat = true
 		result := DictToXML(data, opts)
-		
+
 		if !bytes.Contains(result, []byte(`<null key="value"/>`)) {
 			t.Errorf("expected null element, got %s", string(result))
 		}
@@ -643,7 +643,7 @@ func TestDictToXMLXPathFormat(t *testing.T) {
 		opts := DefaultOptions()
 		opts.XPathFormat = true
 		result := DictToXML(data, opts)
-		
+
 		if !bytes.Contains(result, []byte(`<array xmlns="http://www.w3.org/2005/xpath-functions">`)) {
 			t.Errorf("expected array with namespace, got %s", string(result))
 		}
@@ -664,7 +664,7 @@ func TestListHeaders(t *testing.T) {
 		opts.ItemWrap = false
 		opts.ListHeaders = true
 		result := DictToXML(data, opts)
-		
+
 		expected := "<Bike><frame_color>red</frame_color></Bike><Bike><frame_color>green</frame_color></Bike>"
 		if string(result) != expected {
 			t.Errorf("expected %s, got %s", expected, string(result))
@@ -681,7 +681,7 @@ func TestFlatList(t *testing.T) {
 		opts := DefaultOptions()
 		opts.AttrType = false
 		result := DictToXML(data, opts)
-		
+
 		// flat_list should not be wrapped
 		if !strings.Contains(string(result), "<item>1</item><item>2</item><item>3</item>") {
 			t.Errorf("expected flat list items, got %s", string(result))
@@ -703,7 +703,7 @@ func TestCustomItemFunc(t *testing.T) {
 			return "custom"
 		}
 		result := DictToXML(data, opts)
-		
+
 		if !strings.Contains(string(result), "<custom>") {
 			t.Errorf("expected custom item names, got %s", string(result))
 		}
@@ -717,7 +717,7 @@ func TestPrettyPrint(t *testing.T) {
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
-		
+
 		if !strings.Contains(result, "\n") {
 			t.Errorf("expected formatted output with newlines, got %s", result)
 		}

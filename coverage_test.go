@@ -1269,7 +1269,7 @@ func TestToXMLBytesStringConversion(t *testing.T) {
 func TestConvertDictTimeTypeSwitch(t *testing.T) {
 	opts := DefaultOptions()
 	opts.AttrType = false
-	
+
 	dt := time.Date(2023, 2, 15, 12, 30, 45, 0, time.UTC)
 	m := map[string]any{"date": dt}
 	result := ConvertDict(m, opts, "root")
@@ -1282,7 +1282,7 @@ func TestConvertDictTimeTypeSwitch(t *testing.T) {
 func TestConvertListCompleteTypes(t *testing.T) {
 	opts := DefaultOptions()
 	opts.AttrType = false
-	
+
 	// Test with direct type matches (not via reflection)
 	t.Run("int types direct", func(t *testing.T) {
 		items := []any{1, int8(2), int16(3), int32(4), int64(5)}
@@ -1291,7 +1291,7 @@ func TestConvertListCompleteTypes(t *testing.T) {
 			t.Errorf("expected 1, got %s", result)
 		}
 	})
-	
+
 	t.Run("uint types direct", func(t *testing.T) {
 		items := []any{uint(1), uint8(2), uint16(3), uint32(4), uint64(5)}
 		result := ConvertList(items, opts, "root")
@@ -1299,7 +1299,7 @@ func TestConvertListCompleteTypes(t *testing.T) {
 			t.Errorf("expected 1, got %s", result)
 		}
 	})
-	
+
 	t.Run("float types direct", func(t *testing.T) {
 		items := []any{float32(1.5), float64(2.5)}
 		result := ConvertList(items, opts, "root")
@@ -1313,7 +1313,7 @@ func TestConvertListCompleteTypes(t *testing.T) {
 func TestDict2XMLStrPrimitiveString(t *testing.T) {
 	opts := DefaultOptions()
 	opts.AttrType = false
-	
+
 	// Item with just a string @val
 	item := map[string]any{"@val": "simple string"}
 	attrs := make(map[string]any)
