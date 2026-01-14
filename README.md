@@ -281,6 +281,18 @@ type Options struct {
 - `ErrURLRead` - Error reading from URL
 - `ErrStringRead` - Error parsing JSON string
 
+## Related Projects
+
+### Python Version
+
+This is a Go port of the original Python [json2xml](https://github.com/vinitkumar/json2xml) library. If you prefer Python, you can install it via pip:
+
+```bash
+pip install json2xml
+```
+
+The Python version includes the same features and a CLI tool (`json2xml-py`).
+
 ## License
 
 MIT License - same as the original Python library.
