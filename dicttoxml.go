@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// XPath 3.1 json-to-xml namespace
+// XPathFunctionsNS is the XPath 3.1 json-to-xml namespace.
 const XPathFunctionsNS = "http://www.w3.org/2005/xpath-functions"
 
 // ItemFunc is a function that generates element names for list items.

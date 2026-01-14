@@ -262,11 +262,11 @@ xmlBytes := json2xml.DictToXML(data, opts)
 
 ### Types
 
-#### Json2xml
+#### JSON2xml
 
 Main converter struct with fluent API:
 
-- `New(data any) *Json2xml` - Create new converter
+- `New(data any) *JSON2xml` - Create new converter
 - `WithWrapper(name string)` - Set wrapper element name (default: "all")
 - `WithRoot(bool)` - Include root element (default: true)
 - `WithPretty(bool)` - Pretty print output (default: true)

@@ -31,8 +31,8 @@ const (
 	Email   = "mail@vinitkumar.me"
 )
 
-// Json2xml is the main converter struct.
-type Json2xml struct {
+// JSON2xml is the main converter struct.
+type JSON2xml struct {
 	data        any
 	wrapper     string
 	root        bool
@@ -42,9 +42,9 @@ type Json2xml struct {
 	xpathFormat bool
 }
 
-// New creates a new Json2xml converter with default options.
-func New(data any) *Json2xml {
-	return &Json2xml{
+// New creates a new JSON2xml converter with default options.
+func New(data any) *JSON2xml {
+	return &JSON2xml{
 		data:        data,
 		wrapper:     "all",
 		root:        true,
@@ -56,37 +56,37 @@ func New(data any) *Json2xml {
 }
 
 // WithWrapper sets a custom wrapper element name.
-func (j *Json2xml) WithWrapper(wrapper string) *Json2xml {
+func (j *JSON2xml) WithWrapper(wrapper string) *JSON2xml {
 	j.wrapper = wrapper
 	return j
 }
 
 // WithRoot sets whether to include root element.
-func (j *Json2xml) WithRoot(root bool) *Json2xml {
+func (j *JSON2xml) WithRoot(root bool) *JSON2xml {
 	j.root = root
 	return j
 }
 
 // WithPretty sets whether to pretty-print the output.
-func (j *Json2xml) WithPretty(pretty bool) *Json2xml {
+func (j *JSON2xml) WithPretty(pretty bool) *JSON2xml {
 	j.pretty = pretty
 	return j
 }
 
 // WithAttrType sets whether to include type attributes.
-func (j *Json2xml) WithAttrType(attrType bool) *Json2xml {
+func (j *JSON2xml) WithAttrType(attrType bool) *JSON2xml {
 	j.attrType = attrType
 	return j
 }
 
 // WithItemWrap sets whether to wrap list items in <item> elements.
-func (j *Json2xml) WithItemWrap(itemWrap bool) *Json2xml {
+func (j *JSON2xml) WithItemWrap(itemWrap bool) *JSON2xml {
 	j.itemWrap = itemWrap
 	return j
 }
 
 // WithXPathFormat sets whether to use XPath 3.1 json-to-xml format.
-func (j *Json2xml) WithXPathFormat(xpathFormat bool) *Json2xml {
+func (j *JSON2xml) WithXPathFormat(xpathFormat bool) *JSON2xml {
 	j.xpathFormat = xpathFormat
 	return j
 }
@@ -94,7 +94,7 @@ func (j *Json2xml) WithXPathFormat(xpathFormat bool) *Json2xml {
 // ToXML converts the data to XML.
 // Returns the XML as a string when pretty=true, or as bytes when pretty=false.
 // Returns nil if data is empty or nil.
-func (j *Json2xml) ToXML() (any, error) {
+func (j *JSON2xml) ToXML() (any, error) {
 	if j.data == nil {
 		return nil, nil
 	}
@@ -134,7 +134,7 @@ func (j *Json2xml) ToXML() (any, error) {
 }
 
 // ToXMLString converts the data to XML and returns it as a string.
-func (j *Json2xml) ToXMLString() (string, error) {
+func (j *JSON2xml) ToXMLString() (string, error) {
 	result, err := j.ToXML()
 	if err != nil {
 		return "", err
@@ -153,7 +153,7 @@ func (j *Json2xml) ToXMLString() (string, error) {
 }
 
 // ToXMLBytes converts the data to XML and returns it as bytes.
-func (j *Json2xml) ToXMLBytes() ([]byte, error) {
+func (j *JSON2xml) ToXMLBytes() ([]byte, error) {
 	result, err := j.ToXML()
 	if err != nil {
 		return nil, err
