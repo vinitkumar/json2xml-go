@@ -775,7 +775,7 @@ func TestReadFromURL(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{"key": "value", "number": 42}`))
+			_, _ = w.Write([]byte(`{"key": "value", "number": 42}`))
 		}))
 		defer server.Close()
 
@@ -800,7 +800,7 @@ func TestReadFromURL(t *testing.T) {
 			}
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{"result": "ok"}`))
+			_, _ = w.Write([]byte(`{"result": "ok"}`))
 		}))
 		defer server.Close()
 
@@ -841,7 +841,7 @@ func TestReadFromURL(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`invalid json`))
+			_, _ = w.Write([]byte(`invalid json`))
 		}))
 		defer server.Close()
 
@@ -1166,7 +1166,7 @@ func TestReadFromURLReadError(t *testing.T) {
 			hj, ok := w.(http.Hijacker)
 			if ok {
 				conn, _, _ := hj.Hijack()
-				conn.Close()
+				_ = conn.Close()
 			}
 		}))
 		defer server.Close()
@@ -1653,7 +1653,7 @@ func TestReadFromURLBodyReadError(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Length", "1000")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"incomplete`))
+		_, _ = w.Write([]byte(`{"incomplete`))
 	}))
 	defer server.Close()
 

@@ -509,11 +509,7 @@ func List2XMLStr(opts Options, attrs map[string]any, items []any, itemName strin
 // ConvertList converts a slice into an XML string.
 func ConvertList(items []any, opts Options, parent string) string {
 	var output strings.Builder
-	itemName := opts.ItemFunc(parent)
-
-	if strings.HasSuffix(itemName, "@flat") {
-		itemName = itemName[:len(itemName)-5]
-	}
+	itemName := strings.TrimSuffix(opts.ItemFunc(parent), "@flat")
 
 	for _, item := range items {
 		attrs := make(map[string]any)
@@ -674,9 +670,10 @@ func DictToXML(obj any, opts Options) []byte {
 			case "xsi":
 				if xsiMap, ok := ns.(map[string]any); ok {
 					for schemaAttr, schemaVal := range xsiMap {
-						if schemaAttr == "schemaInstance" {
+						switch schemaAttr {
+						case "schemaInstance":
 							namespaceStr.WriteString(fmt.Sprintf(` xmlns:%s="%s"`, prefix, schemaVal))
-						} else if schemaAttr == "schemaLocation" {
+						case "schemaLocation":
 							namespaceStr.WriteString(fmt.Sprintf(` xsi:%s="%s"`, schemaAttr, schemaVal))
 						}
 					}

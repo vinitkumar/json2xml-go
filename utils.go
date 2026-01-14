@@ -14,7 +14,7 @@ func ReadFromJSON(filename string) (any, error) {
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrJSONRead, err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	data, err := io.ReadAll(file)
 	if err != nil {
@@ -50,7 +50,7 @@ func ReadFromURL(url string, params map[string]string) (any, error) {
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrURLRead, err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, ErrURLRead
