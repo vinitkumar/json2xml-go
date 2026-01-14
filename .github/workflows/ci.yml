@@ -10,9 +10,6 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        go-version: ['1.22', '1.23', '1.24']
 
     steps:
       - name: Checkout code
@@ -21,7 +18,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: stable
 
       - name: Build
         run: go build -v ./...
@@ -32,9 +29,6 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        go-version: ['1.22', '1.23', '1.24']
 
     steps:
       - name: Checkout code
@@ -43,13 +37,12 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: stable
 
       - name: Run tests
         run: go test -v -race -coverprofile=coverage.out ./...
 
       - name: Upload coverage
-        if: matrix.go-version == '1.24'
         uses: codecov/codecov-action@v4
         with:
           file: ./coverage.out
@@ -66,7 +59,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: stable
 
       - name: Run go fmt
         run: |
