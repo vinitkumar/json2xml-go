@@ -1,8 +1,8 @@
-// json2xml is a command-line tool to convert JSON data to XML format.
+// json2xml-go is a command-line tool to convert JSON data to XML format.
 //
 // Usage:
 //
-//	json2xml [flags] [input-file]
+//	json2xml-go [flags] [input-file]
 //
 // Flags:
 //
@@ -21,22 +21,22 @@
 // Examples:
 //
 //	# Convert a JSON file to XML
-//	json2xml data.json
+//	json2xml-go data.json
 //
 //	# Convert with custom wrapper
-//	json2xml -w root data.json
+//	json2xml-go -w root data.json
 //
 //	# Read from URL
-//	json2xml -u https://api.example.com/data.json
+//	json2xml-go -u https://api.example.com/data.json
 //
 //	# Read from string
-//	json2xml -s '{"name": "John", "age": 30}'
+//	json2xml-go -s '{"name": "John", "age": 30}'
 //
 //	# Output to file
-//	json2xml -o output.xml data.json
+//	json2xml-go -o output.xml data.json
 //
 //	# Use XPath 3.1 format
-//	json2xml -x data.json
+//	json2xml-go -x data.json
 package main
 
 import (
@@ -113,10 +113,10 @@ func init() {
 }
 
 func usage() {
-	fmt.Fprintf(os.Stderr, `json2xml - Convert JSON to XML
+	fmt.Fprintf(os.Stderr, `json2xml-go - Convert JSON to XML
 
 Usage:
-  json2xml [flags] [input-file]
+  json2xml-go [flags] [input-file]
 
 Input Options:
   -u, --url string        Read JSON from URL
@@ -142,28 +142,28 @@ Other Options:
 
 Examples:
   # Convert a JSON file to XML
-  json2xml data.json
+  json2xml-go data.json
 
   # Convert with custom wrapper
-  json2xml -w root data.json
+  json2xml-go -w root data.json
 
   # Read from URL
-  json2xml -u https://api.example.com/data.json
+  json2xml-go -u https://api.example.com/data.json
 
   # Read from string
-  json2xml -s '{"name": "John", "age": 30}'
+  json2xml-go -s '{"name": "John", "age": 30}'
 
   # Read from stdin
-  cat data.json | json2xml -
+  cat data.json | json2xml-go -
 
   # Output to file
-  json2xml -o output.xml data.json
+  json2xml-go -o output.xml data.json
 
   # Use XPath 3.1 format
-  json2xml -x data.json
+  json2xml-go -x data.json
 
   # Disable pretty printing and type attributes
-  json2xml -p=false -t=false data.json
+  json2xml-go -p=false -t=false data.json
 
 `)
 }
@@ -177,7 +177,7 @@ func main() {
 	}
 
 	if showVersion {
-		fmt.Printf("json2xml version %s\n", version)
+		fmt.Printf("json2xml-go version %s\n", version)
 		fmt.Printf("Author: %s <%s>\n", json2xml.Author, json2xml.Email)
 		os.Exit(0)
 	}
