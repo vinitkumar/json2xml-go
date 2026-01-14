@@ -27,40 +27,70 @@ go get github.com/vinitkumar/json2xml-go
 
 ### As a CLI Tool
 
+**Quick install (binary only):**
+
 ```bash
-go install github.com/vinitkumar/json2xml-go/cmd/json2xml@latest
+go install github.com/vinitkumar/json2xml-go/cmd/json2xml-go@latest
+```
+
+**Full install with man page:**
+
+```bash
+# Clone the repository
+git clone https://github.com/vinitkumar/json2xml-go.git
+cd json2xml-go
+
+# Install binary and man page (may need sudo for /usr/local)
+sudo make install
+
+# Or install to a custom location (no sudo needed)
+make PREFIX=~/.local install
+```
+
+After installation, you can access the man page:
+
+```bash
+man json2xml-go
+```
+
+**Uninstall:**
+
+```bash
+sudo make uninstall
+# Or if installed to custom location:
+make PREFIX=~/.local uninstall
 ```
 
 ## CLI Usage
 
-The `json2xml` command-line tool provides an easy way to convert JSON to XML from the terminal.
+The `json2xml-go` command-line tool provides an easy way to convert JSON to XML from the terminal.
 
 ### Basic Examples
 
 ```bash
 # Convert a JSON file to XML
-json2xml data.json
+json2xml-go data.json
 
 # Convert with custom wrapper element
-json2xml -w root data.json
+json2xml-go -w root data.json
 
 # Read JSON from string
-json2xml -s '{"name": "John", "age": 30}'
+json2xml-go -s '{"name": "John", "age": 30}'
 
 # Read from stdin
-cat data.json | json2xml -
+cat data.json | json2xml-go -
 
 # Output to file
-json2xml -o output.xml data.json
+json2xml-go -o output.xml data.json
 
 # Use XPath 3.1 format
-json2xml -x data.json
+json2xml-go -x data.json
 
 # Disable pretty printing and type attributes
-json2xml -p=false -t=false data.json
+json2xml-go -p=false -t=false data.json
 
 # Without item wrapping for lists
-json2xml -i=false data.json
+json2xml-go -i=false data.json
 ```
 
 ### CLI Options

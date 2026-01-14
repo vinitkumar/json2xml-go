@@ -1,0 +1,208 @@
+.\" Manpage for json2xml-go
+.\" Contact mail@vinitkumar.me to correct errors or typos.
+.TH JSON2XML-GO 1 "2026-01-14" "json2xml-go 1.0.0" "User Commands"
+
+.SH NAME
+json2xml-go \- convert JSON data to XML format
+
+.SH SYNOPSIS
+.B json2xml-go
+[\fIOPTIONS\fR] [\fIinput-file\fR]
+
+.SH DESCRIPTION
+.B json2xml-go
+is a command-line tool to convert JSON data to XML format. It supports reading
+JSON from files, URLs, strings, or standard input, and outputs well-formed XML
+with customizable formatting options.
+
+This is a Go port of the Python json2xml library.
+
+.SH OPTIONS
+
+.SS "Input Options"
+.TP
+.BR \-u ", " \-\-url " " \fIURL\fR
+Read JSON from the specified URL.
+.TP
+.BR \-s ", " \-\-string " " \fIJSON\fR
+Read JSON from the provided string.
+.TP
+.I input-file
+Read JSON from the specified file. Use \fB\-\fR to read from standard input.
+
+.SS "Output Options"
+.TP
+.BR \-o ", " \-\-output " " \fIFILE\fR
+Write XML output to the specified file instead of standard output.
+
+.SS "Conversion Options"
+.TP
+.BR \-w ", " \-\-wrapper " " \fINAME\fR
+Set the wrapper element name. Default is "all".
+.TP
+.BR \-r ", " \-\-root
+Include root element. Default is true. Use \fB\-r=false\fR to disable.
+.TP
+.BR \-p ", " \-\-pretty
+Pretty print output with indentation. Default is true.
+Use \fB\-p=false\fR to disable.
+.TP
+.BR \-t ", " \-\-type
+Include type attributes on elements (e.g., type="str", type="int").
+Default is true. Use \fB\-t=false\fR to disable.
+.TP
+.BR \-i ", " \-\-item\-wrap
+Wrap list items in <item> elements. Default is true.
+Use \fB\-i=false\fR to disable.
+.TP
+.BR \-x ", " \-\-xpath
+Use XPath 3.1 json-to-xml format as specified by W3C.
+.TP
+.BR \-c ", " \-\-cdata
+Wrap string values in CDATA sections.
+.TP
+.BR \-l ", " \-\-list\-headers
+Repeat headers for each list item.
+
+.SS "Other Options"
+.TP
+.BR \-v ", " \-\-version
+Show version information and exit.
+.TP
+.BR \-h ", " \-\-help
+Show help message and exit.
+
+.SH EXAMPLES
+
+Convert a JSON file to XML:
+.PP
+.nf
+.RS
+json2xml-go data.json
+.RE
+.fi
+
+.PP
+Convert with a custom wrapper element:
+.PP
+.nf
+.RS
+json2xml-go -w root data.json
+.RE
+.fi
+
+.PP
+Read JSON from a URL:
+.PP
+.nf
+.RS
+json2xml-go -u https://api.example.com/data.json
+.RE
+.fi
+
+.PP
+Read JSON from a string:
+.PP
+.nf
+.RS
+json2xml-go -s '{"name": "John", "age": 30}'
+.RE
+.fi
+
+.PP
+Read from standard input:
+.PP
+.nf
+.RS
+cat data.json | json2xml-go -
+.RE
+.fi
+
+.PP
+Output to a file:
+.PP
+.nf
+.RS
+json2xml-go -o output.xml data.json
+.RE
+.fi
+
+.PP
+Use XPath 3.1 format:
+.PP
+.nf
+.RS
+json2xml-go -x data.json
+.RE
+.fi
+
+.PP
+Disable pretty printing and type attributes:
+.PP
+.nf
+.RS
+json2xml-go -p=false -t=false data.json
+.RE
+.fi
+
+.PP
+Without item wrapping for lists:
+.PP
+.nf
+.RS
+json2xml-go -i=false data.json
+.RE
+.fi
+
+.SH EXIT STATUS
+.TP
+.B 0
+Successful execution.
+.TP
+.B 1
+An error occurred (invalid input, file not found, conversion error, etc.).
+
+.SH OUTPUT FORMAT
+
+By default, the output includes an XML declaration and type attributes:
+
+.nf
+.RS
+<?xml version="1.0" encoding="UTF-8"?>
+<all>
+  <name type="str">John</name>
+  <age type="int">30</age>
+</all>
+.RE
+.fi
+
+With \fB\-x\fR (XPath 3.1 format):
+
+.nf
+.RS
+<?xml version="1.0" encoding="UTF-8"?>
+<map xmlns="http://www.w3.org/2005/xpath-functions">
+  <string key="name">John</string>
+  <number key="age">30</number>
+</map>
+.RE
+.fi
+
+.SH SEE ALSO
+.BR jq (1),
+.BR xmllint (1)
+
+.SH BUGS
+Report bugs at: https://github.com/vinitkumar/json2xml-go/issues
+
+.SH AUTHOR
+Vinit Kumar <mail@vinitkumar.me>
+
+.SH COPYRIGHT
+MIT License. This is free software; see the source for copying conditions.
+
+.SH NOTES
+This is a Go port of the Python json2xml library available at:
+https://github.com/vinitkumar/json2xml
+
+For the Python version, install with: pip install json2xml
