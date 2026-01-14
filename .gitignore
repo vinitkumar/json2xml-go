@@ -1,5 +1,6 @@
 # Binaries
 json2xml
+json2xml-go
 *.exe
 *.exe~
 *.dll
