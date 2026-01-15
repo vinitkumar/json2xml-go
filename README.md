@@ -313,7 +313,36 @@ type Options struct {
 - `ErrURLRead` - Error reading from URL
 - `ErrStringRead` - Error parsing JSON string
 
+## Performance Benchmarks
+
+Comprehensive benchmarks comparing Python, Go, and Zig implementations:
+
+| Test Case | Python (CPython) | Go | Zig |
+|-----------|------------------|-----|-----|
+| **Small JSON** (47 bytes) | 68.88ms | 7.13ms | 2.65ms |
+| **Medium JSON** (2.6 KB) | 73.40ms | 4.85ms | 2.13ms |
+| **Large JSON** (323 KB) | 420.06ms | 68.88ms | 5.90ms |
+| **Very Large JSON** (1.6 MB) | 2.08s | 288.75ms | 20.62ms |
+
+**Summary**: Go is **7x faster** than Python on average.
+
+**Recommendation by Use Case:**
+
+| Use Case | Recommended |
+|----------|-------------|
+| CLI tool for small/medium files | **Go** (this library) |
+| High-throughput batch processing | **Go** or **Zig** |
+| Integration with Python codebase | Python (json2xml) |
+| Maximum performance | Zig (json2xml-zig) |
+
+For detailed benchmarks, see [BENCHMARKS.md](./BENCHMARKS.md).
+
 ## Related Projects
+
+This library is part of the json2xml family:
+
+- **Python**: [json2xml](https://github.com/vinitkumar/json2xml) - The original implementation, best for Python integration
+- **Zig**: [json2xml-zig](https://github.com/vinitkumar/json2xml-zig) - 12x faster than Go, for maximum performance
 
 ### Python Version
 
