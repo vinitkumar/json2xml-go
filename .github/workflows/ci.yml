@@ -78,10 +78,26 @@ jobs:
       - name: Run staticcheck
         run: staticcheck ./...
 
+  fuzz:
+    name: Fuzz
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Run fuzz tests
+        run: make fuzz-short
+
   goreportcard:
     name: Update Go Report Card
     runs-on: ubuntu-latest
-    needs: [build, test, lint]
+    needs: [build, test, lint, fuzz]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:

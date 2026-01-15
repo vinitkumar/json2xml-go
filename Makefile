@@ -15,7 +15,7 @@ MANDIR := $(PREFIX)/share/man/man1
 # Build info
 LDFLAGS := -ldflags "-s -w"
 
-.PHONY: all build clean install uninstall fmt vet test man install-man help
+.PHONY: all build clean install uninstall fmt vet test fuzz fuzz-short man install-man help
 
 all: build
 
@@ -71,6 +71,28 @@ test:
 test-coverage:
 	$(GO) test -v -coverprofile=coverage.out ./...
 	$(GO) tool cover -html=coverage.out -o coverage.html
+
+## fuzz: Run all fuzz tests (30s each)
+fuzz:
+	@echo "Running fuzz tests (30s each)..."
+	$(GO) test -fuzz=FuzzEscapeXML -fuzztime=30s
+	$(GO) test -fuzz=FuzzWrapCDATA -fuzztime=30s
+	$(GO) test -fuzz=FuzzKeyIsValidXML -fuzztime=30s
+	$(GO) test -fuzz=FuzzMakeValidXMLName -fuzztime=30s
+	$(GO) test -fuzz=FuzzGetXMLType -fuzztime=30s
+	$(GO) test -fuzz=FuzzGetXPath31TagName -fuzztime=30s
+	$(GO) test -fuzz=FuzzConvertToXPath31 -fuzztime=30s
+	$(GO) test -fuzz=FuzzMakeAttrString -fuzztime=30s
+	$(GO) test -fuzz=FuzzConvertKV -fuzztime=30s
+	$(GO) test -fuzz=FuzzConvertBool -fuzztime=30s
+	$(GO) test -fuzz=FuzzConvertNone -fuzztime=30s
+	$(GO) test -fuzz=FuzzDictToXML -fuzztime=30s
+	$(GO) test -fuzz=FuzzPrettyPrint -fuzztime=30s
+
+## fuzz-short: Run fuzz tests with seed corpus only (for CI)
+fuzz-short:
+	@echo "Running fuzz tests with seed corpus..."
+	$(GO) test -run='^Fuzz' -v ./...
 
 ## man: View man page locally (without installing)
 man:

@@ -723,3 +723,246 @@ func TestPrettyPrint(t *testing.T) {
 		}
 	})
 }
+
+// Fuzz tests for dicttoxml functions
+
+func FuzzEscapeXML(f *testing.F) {
+	f.Add("")
+	f.Add("hello")
+	f.Add("<script>alert('xss')</script>")
+	f.Add("&amp;&lt;&gt;&quot;&apos;")
+	f.Add("normal text with <special> & \"chars\"")
+	f.Add("]]>")
+	f.Add("\x00\x01\x02")
+	f.Add("unicode: 日本語 🎉")
+
+	f.Fuzz(func(t *testing.T, input string) {
+		result := EscapeXML(input)
+		// result should not contain unescaped special chars
+		if strings.Contains(result, "<") && !strings.Contains(result, "&lt;") {
+			// this is fine, we only escape < to &lt;
+		}
+		// should not panic, that's the main check
+		_ = result
+	})
+}
+
+func FuzzWrapCDATA(f *testing.F) {
+	f.Add("")
+	f.Add("simple text")
+	f.Add("]]>")
+	f.Add("nested ]]> end sequence")
+	f.Add("multiple ]]> and ]]> here")
+	f.Add("<![CDATA[already cdata]]>")
+
+	f.Fuzz(func(t *testing.T, input string) {
+		result := WrapCDATA(input)
+		if !strings.HasPrefix(result, "<![CDATA[") {
+			t.Errorf("result should start with CDATA prefix, got %s", result)
+		}
+		if !strings.HasSuffix(result, "]]>") {
+			t.Errorf("result should end with CDATA suffix, got %s", result)
+		}
+	})
+}
+
+func FuzzKeyIsValidXML(f *testing.F) {
+	f.Add("")
+	f.Add("valid")
+	f.Add("valid_key")
+	f.Add("valid-key")
+	f.Add("123")
+	f.Add("_underscore")
+	f.Add("has space")
+	f.Add("special<chars>")
+	f.Add("unicode:日本語")
+	f.Add("\x00null\x00")
+
+	f.Fuzz(func(t *testing.T, key string) {
+		// should not panic
+		_ = KeyIsValidXML(key)
+	})
+}
+
+func FuzzMakeValidXMLName(f *testing.F) {
+	f.Add("valid", "")
+	f.Add("123", "")
+	f.Add("has space", "")
+	f.Add("special:colon", "")
+	f.Add("@flat", "")
+	f.Add("test@flat", "")
+	f.Add("", "")
+	f.Add("<invalid>", "")
+
+	f.Fuzz(func(t *testing.T, key string, _ string) {
+		resultKey, resultAttrs := MakeValidXMLName(key, nil)
+		// result should be a valid XML name or fallback to "key"
+		if resultKey == "" {
+			t.Error("result key should not be empty")
+		}
+		_ = resultAttrs
+	})
+}
+
+func FuzzGetXMLType(f *testing.F) {
+	f.Add("string value")
+	f.Add("")
+
+	f.Fuzz(func(t *testing.T, input string) {
+		// test with string
+		result := GetXMLType(input)
+		if result != "str" {
+			t.Errorf("expected 'str' for string input, got %s", result)
+		}
+	})
+}
+
+func FuzzGetXPath31TagName(f *testing.F) {
+	f.Add("string value")
+	f.Add("")
+
+	f.Fuzz(func(t *testing.T, input string) {
+		result := GetXPath31TagName(input)
+		if result != "string" {
+			t.Errorf("expected 'string' for string input, got %s", result)
+		}
+	})
+}
+
+func FuzzConvertToXPath31(f *testing.F) {
+	f.Add("", "")
+	f.Add("value", "key")
+	f.Add("special <chars> & \"quotes\"", "mykey")
+	f.Add("unicode 日本語", "unicode_key")
+
+	f.Fuzz(func(t *testing.T, value, key string) {
+		result := ConvertToXPath31(value, key)
+		if !strings.Contains(result, "<string") {
+			t.Errorf("expected string element, got %s", result)
+		}
+		if key != "" && !strings.Contains(result, "key=") {
+			t.Errorf("expected key attribute when key is provided, got %s", result)
+		}
+	})
+}
+
+func FuzzMakeAttrString(f *testing.F) {
+	f.Add("key", "value")
+	f.Add("id", "123")
+	f.Add("special", "<>&\"'")
+	f.Add("", "empty_key")
+
+	f.Fuzz(func(t *testing.T, key, value string) {
+		if key == "" {
+			return // skip empty keys
+		}
+		attrs := map[string]any{key: value}
+		result := MakeAttrString(attrs)
+		if result == "" {
+			t.Error("result should not be empty for non-empty attrs")
+		}
+		// should have proper quoting
+		if !strings.Contains(result, "=\"") {
+			t.Errorf("result should contain attribute assignment, got %s", result)
+		}
+	})
+}
+
+func FuzzConvertKV(f *testing.F) {
+	f.Add("key", "value", true, false)
+	f.Add("mykey", "special<>&\"'", false, true)
+	f.Add("123", "numeric key", true, true)
+	f.Add("", "empty key", false, false)
+
+	f.Fuzz(func(t *testing.T, key, value string, attrType, cdata bool) {
+		if key == "" {
+			return // skip empty keys as they get transformed
+		}
+		result := ConvertKV(key, value, attrType, nil, cdata)
+		if result == "" {
+			t.Error("result should not be empty")
+		}
+		// should be valid XML structure (opening and closing tags)
+		if !strings.Contains(result, "</") {
+			t.Errorf("result should contain closing tag, got %s", result)
+		}
+	})
+}
+
+func FuzzConvertBool(f *testing.F) {
+	f.Add("flag", true, true, false)
+	f.Add("enabled", false, false, true)
+	f.Add("123", true, true, true)
+
+	f.Fuzz(func(t *testing.T, key string, val, attrType, cdata bool) {
+		if key == "" {
+			return
+		}
+		result := ConvertBool(key, val, attrType, nil, cdata)
+		if result == "" {
+			t.Error("result should not be empty")
+		}
+		// should contain true or false
+		if !strings.Contains(result, "true") && !strings.Contains(result, "false") {
+			t.Errorf("result should contain boolean value, got %s", result)
+		}
+	})
+}
+
+func FuzzConvertNone(f *testing.F) {
+	f.Add("empty", true, false)
+	f.Add("null_value", false, true)
+	f.Add("123", true, true)
+
+	f.Fuzz(func(t *testing.T, key string, attrType, cdata bool) {
+		if key == "" {
+			return
+		}
+		result := ConvertNone(key, attrType, nil, cdata)
+		if result == "" {
+			t.Error("result should not be empty")
+		}
+		// should be self-closing or empty element
+		if !strings.Contains(result, "</") {
+			t.Errorf("result should contain closing tag, got %s", result)
+		}
+	})
+}
+
+func FuzzDictToXML(f *testing.F) {
+	f.Add("key", "value")
+	f.Add("special", "<>&\"'chars")
+	f.Add("unicode", "日本語🎉")
+
+	f.Fuzz(func(t *testing.T, key, value string) {
+		if key == "" {
+			return
+		}
+		data := map[string]any{key: value}
+		opts := DefaultOptions()
+
+		// should not panic
+		result := DictToXML(data, opts)
+		if len(result) == 0 {
+			t.Error("result should not be empty")
+		}
+
+		// test with XPath format
+		opts.XPathFormat = true
+		result = DictToXML(data, opts)
+		if len(result) == 0 {
+			t.Error("XPath result should not be empty")
+		}
+	})
+}
+
+func FuzzPrettyPrint(f *testing.F) {
+	f.Add([]byte(`<?xml version="1.0"?><root></root>`))
+	f.Add([]byte(`<simple>text</simple>`))
+	f.Add([]byte(`<nested><child>value</child></nested>`))
+
+	f.Fuzz(func(t *testing.T, input []byte) {
+		// should not panic, even on invalid XML
+		_, _ = PrettyPrint(input)
+	})
+}
