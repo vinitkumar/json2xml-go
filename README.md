@@ -1,3 +1,5 @@
+![json2xml hero](./json2xml-hero.png)
+
 # json2xml-go
 
 A Go port of the Python [json2xml](https://github.com/vinitkumar/json2xml) library for converting JSON data to XML format.
