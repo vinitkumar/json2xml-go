@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"time"
 )
 
 // ReadFromJSON reads a JSON file and returns the parsed data.
@@ -45,7 +46,7 @@ func ReadFromURL(url string, params map[string]string) (any, error) {
 		req.URL.RawQuery = q.Encode()
 	}
 
-	client := &http.Client{}
+	client := &http.Client{Timeout: 30 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrURLRead, err)
