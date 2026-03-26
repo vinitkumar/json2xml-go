@@ -1097,8 +1097,8 @@ func TestPrettyPrintMoreCases(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		if !strings.Contains(result, "<?xml") {
-			t.Errorf("expected xml declaration, got %s", result)
+		if !strings.Contains(string(result), "<?xml") {
+			t.Errorf("expected xml declaration, got %s", string(result))
 		}
 	})
 }
@@ -1118,8 +1118,6 @@ func TestToXMLRemainingBranches(t *testing.T) {
 
 func TestToXMLStringDefaultCase(t *testing.T) {
 	t.Run("with non-standard type", func(t *testing.T) {
-		// This is hard to trigger since ToXML returns string or []byte
-		// But we can test the normal path
 		data := map[string]any{"key": "value"}
 		result, err := New(data).ToXMLString()
 		if err != nil {
@@ -1211,8 +1209,8 @@ func TestPrettyPrintNilToken(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if !strings.Contains(result, "root") {
-		t.Errorf("expected root element, got %s", result)
+	if !strings.Contains(string(result), "root") {
+		t.Errorf("expected root element, got %s", string(result))
 	}
 }
 

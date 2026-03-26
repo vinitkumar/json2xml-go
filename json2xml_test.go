@@ -127,13 +127,8 @@ func TestToXML(t *testing.T) {
 			t.Fatalf("expected no error, got %v", err)
 		}
 
-		xmlStr, ok := result.(string)
-		if !ok {
-			t.Fatalf("expected string, got %T", result)
-		}
-
-		if !strings.Contains(xmlStr, `encoding="UTF-8"`) {
-			t.Errorf("expected encoding declaration, got %s", xmlStr)
+		if !bytes.Contains(result, []byte(`encoding="UTF-8"`)) {
+			t.Errorf("expected encoding declaration, got %s", string(result))
 		}
 	})
 
@@ -144,13 +139,8 @@ func TestToXML(t *testing.T) {
 			t.Fatalf("expected no error, got %v", err)
 		}
 
-		xmlBytes, ok := result.([]byte)
-		if !ok {
-			t.Fatalf("expected []byte, got %T", result)
-		}
-
-		if !bytes.Contains(xmlBytes, []byte(`encoding="UTF-8"`)) {
-			t.Errorf("expected encoding declaration, got %s", string(xmlBytes))
+		if !bytes.Contains(result, []byte(`encoding="UTF-8"`)) {
+			t.Errorf("expected encoding declaration, got %s", string(result))
 		}
 	})
 
@@ -161,9 +151,8 @@ func TestToXML(t *testing.T) {
 			t.Fatalf("expected no error, got %v", err)
 		}
 
-		xmlBytes := result.([]byte)
-		if !bytes.Contains(xmlBytes, []byte("<test>")) || !bytes.Contains(xmlBytes, []byte("</test>")) {
-			t.Errorf("expected custom wrapper, got %s", string(xmlBytes))
+		if !bytes.Contains(result, []byte("<test>")) || !bytes.Contains(result, []byte("</test>")) {
+			t.Errorf("expected custom wrapper, got %s", string(result))
 		}
 	})
 
@@ -174,9 +163,8 @@ func TestToXML(t *testing.T) {
 			t.Fatalf("expected no error, got %v", err)
 		}
 
-		xmlBytes := result.([]byte)
-		if bytes.Contains(xmlBytes, []byte("<all>")) {
-			t.Errorf("expected no wrapper, got %s", string(xmlBytes))
+		if bytes.Contains(result, []byte("<all>")) {
+			t.Errorf("expected no wrapper, got %s", string(result))
 		}
 	})
 
@@ -190,10 +178,8 @@ func TestToXML(t *testing.T) {
 			t.Fatalf("expected no error, got %v", err)
 		}
 
-		xmlBytes := result.([]byte)
-		// Item elements should be present (with or without type attributes)
-		if !bytes.Contains(xmlBytes, []byte("<item")) {
-			t.Errorf("expected item elements, got %s", string(xmlBytes))
+		if !bytes.Contains(result, []byte("<item")) {
+			t.Errorf("expected item elements, got %s", string(result))
 		}
 	})
 
@@ -206,13 +192,10 @@ func TestToXML(t *testing.T) {
 			t.Fatalf("expected no error, got %v", err)
 		}
 
-		xmlBytes := result.([]byte)
-		xmlStr := string(xmlBytes)
-		// Without item wrap, the dict contents should be in my_items (with type attribute)
+		xmlStr := string(result)
 		if !strings.Contains(xmlStr, "<my_items") {
 			t.Errorf("expected my_items element, got %s", xmlStr)
 		}
-		// Should have id elements directly (not wrapped in <item>)
 		if !strings.Contains(xmlStr, "<id") {
 			t.Errorf("expected id elements, got %s", xmlStr)
 		}
@@ -225,9 +208,8 @@ func TestToXML(t *testing.T) {
 			t.Fatalf("expected no error, got %v", err)
 		}
 
-		xmlBytes := result.([]byte)
-		if !bytes.Contains(xmlBytes, []byte("<empty_list")) {
-			t.Errorf("expected empty_list element, got %s", string(xmlBytes))
+		if !bytes.Contains(result, []byte("<empty_list")) {
+			t.Errorf("expected empty_list element, got %s", string(result))
 		}
 	})
 
@@ -244,7 +226,7 @@ func TestToXML(t *testing.T) {
 			t.Fatalf("expected no error, got %v", err)
 		}
 
-		xmlStr := string(result.([]byte))
+		xmlStr := string(result)
 		if !strings.Contains(xmlStr, `type="str"`) {
 			t.Errorf("expected str type, got %s", xmlStr)
 		}
@@ -271,8 +253,7 @@ func TestToXML(t *testing.T) {
 			t.Fatalf("expected no error, got %v", err)
 		}
 
-		xmlStr := string(result.([]byte))
-		// Boolean should be lowercase "true" not "True"
+		xmlStr := string(result)
 		if !strings.Contains(xmlStr, ">true<") {
 			t.Errorf("expected lowercase 'true', got %s", xmlStr)
 		}
@@ -285,18 +266,17 @@ func TestToXML(t *testing.T) {
 			t.Fatalf("expected no error, got %v", err)
 		}
 
-		xmlBytes := result.([]byte)
-		if !bytes.Contains(xmlBytes, []byte(`xmlns="http://www.w3.org/2005/xpath-functions"`)) {
-			t.Errorf("expected XPath namespace, got %s", string(xmlBytes))
+		if !bytes.Contains(result, []byte(`xmlns="http://www.w3.org/2005/xpath-functions"`)) {
+			t.Errorf("expected XPath namespace, got %s", string(result))
 		}
-		if !bytes.Contains(xmlBytes, []byte(`<string key="name">John</string>`)) {
-			t.Errorf("expected string element, got %s", string(xmlBytes))
+		if !bytes.Contains(result, []byte(`<string key="name">John</string>`)) {
+			t.Errorf("expected string element, got %s", string(result))
 		}
-		if !bytes.Contains(xmlBytes, []byte(`<number key="age">30</number>`)) {
-			t.Errorf("expected number element, got %s", string(xmlBytes))
+		if !bytes.Contains(result, []byte(`<number key="age">30</number>`)) {
+			t.Errorf("expected number element, got %s", string(result))
 		}
-		if !bytes.Contains(xmlBytes, []byte(`<boolean key="active">true</boolean>`)) {
-			t.Errorf("expected boolean element, got %s", string(xmlBytes))
+		if !bytes.Contains(result, []byte(`<boolean key="active">true</boolean>`)) {
+			t.Errorf("expected boolean element, got %s", string(result))
 		}
 	})
 
@@ -307,9 +287,8 @@ func TestToXML(t *testing.T) {
 			t.Fatalf("expected no error, got %v", err)
 		}
 
-		xmlBytes := result.([]byte)
-		if !bytes.Contains(xmlBytes, []byte(`<map key="person">`)) {
-			t.Errorf("expected nested map, got %s", string(xmlBytes))
+		if !bytes.Contains(result, []byte(`<map key="person">`)) {
+			t.Errorf("expected nested map, got %s", string(result))
 		}
 	})
 
@@ -320,9 +299,8 @@ func TestToXML(t *testing.T) {
 			t.Fatalf("expected no error, got %v", err)
 		}
 
-		xmlBytes := result.([]byte)
-		if !bytes.Contains(xmlBytes, []byte(`<array key="numbers">`)) {
-			t.Errorf("expected array element, got %s", string(xmlBytes))
+		if !bytes.Contains(result, []byte(`<array key="numbers">`)) {
+			t.Errorf("expected array element, got %s", string(result))
 		}
 	})
 
@@ -333,9 +311,8 @@ func TestToXML(t *testing.T) {
 			t.Fatalf("expected no error, got %v", err)
 		}
 
-		xmlBytes := result.([]byte)
-		if !bytes.Contains(xmlBytes, []byte(`<null key="value"/>`)) {
-			t.Errorf("expected null element, got %s", string(xmlBytes))
+		if !bytes.Contains(result, []byte(`<null key="value"/>`)) {
+			t.Errorf("expected null element, got %s", string(result))
 		}
 	})
 
@@ -346,9 +323,8 @@ func TestToXML(t *testing.T) {
 			t.Fatalf("expected no error, got %v", err)
 		}
 
-		xmlBytes := result.([]byte)
-		if !bytes.Contains(xmlBytes, []byte("&lt;script&gt;")) {
-			t.Errorf("expected escaped characters, got %s", string(xmlBytes))
+		if !bytes.Contains(result, []byte("&lt;script&gt;")) {
+			t.Errorf("expected escaped characters, got %s", string(result))
 		}
 	})
 
@@ -359,9 +335,8 @@ func TestToXML(t *testing.T) {
 			t.Fatalf("expected no error, got %v", err)
 		}
 
-		xmlBytes := result.([]byte)
-		if !bytes.Contains(xmlBytes, []byte(`<array xmlns="http://www.w3.org/2005/xpath-functions">`)) {
-			t.Errorf("expected array with namespace, got %s", string(xmlBytes))
+		if !bytes.Contains(result, []byte(`<array xmlns="http://www.w3.org/2005/xpath-functions">`)) {
+			t.Errorf("expected array with namespace, got %s", string(result))
 		}
 	})
 }

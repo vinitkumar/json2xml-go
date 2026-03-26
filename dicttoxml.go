@@ -4,7 +4,8 @@ import (
 	"bytes"
 	"encoding/xml"
 	"fmt"
-	"math/rand"
+	"io"
+	"math/rand/v2"
 	"reflect"
 	"regexp"
 	"sort"
@@ -14,6 +15,9 @@ import (
 
 // XPathFunctionsNS is the XPath 3.1 json-to-xml namespace.
 const XPathFunctionsNS = "http://www.w3.org/2005/xpath-functions"
+
+// xmlDeclRegexp matches XML declarations for pretty-print formatting.
+var xmlDeclRegexp = regexp.MustCompile(`<\?xml[^?]*\?>`)
 
 // ItemFunc is a function that generates element names for list items.
 type ItemFunc func(parent string) string
@@ -70,7 +74,7 @@ func MakeID(element string, start, end int) string {
 	if end == 0 {
 		end = 999999
 	}
-	return fmt.Sprintf("%s_%d", element, rand.Intn(end-start+1)+start)
+	return fmt.Sprintf("%s_%d", element, rand.IntN(end-start+1)+start)
 }
 
 // GetUniqueID generates a unique ID for a given element.
@@ -147,7 +151,7 @@ func KeyIsValidXML(key string) bool {
 	for {
 		tok, err := decoder.Token()
 		if err != nil {
-			return err.Error() == "EOF"
+			return err == io.EOF
 		}
 		if tok == nil {
 			break
@@ -440,27 +444,45 @@ func Dict2XMLStr(opts Options, attrs map[string]any, item map[string]any, itemNa
 }
 
 // extractSpecialAttrs extracts @attrs, @val, and @flat from an item.
+// Returns a shallow copy of item with special keys removed to avoid mutating the caller's data.
 func extractSpecialAttrs(item map[string]any, defaultAttrs map[string]any) (attrs map[string]any, rawItem any, flat bool) {
 	attrs = defaultAttrs
-	rawItem = item
 
-	if customAttrs, ok := item["@attrs"]; ok {
+	customAttrs, hasAttrs := item["@attrs"]
+	val, hasVal := item["@val"]
+	flatVal, hasFlat := item["@flat"]
+
+	if hasAttrs {
 		if ca, ok := customAttrs.(map[string]any); ok {
 			attrs = ca
-			delete(item, "@attrs")
 		}
 	}
 
-	if val, ok := item["@val"]; ok {
+	if hasVal {
 		rawItem = val
-		delete(item, "@val")
 	}
 
-	if f, ok := item["@flat"]; ok {
-		if fb, ok := f.(bool); ok && fb {
+	if hasFlat {
+		if fb, ok := flatVal.(bool); ok && fb {
 			flat = true
 		}
-		delete(item, "@flat")
+	}
+
+	if !hasAttrs && !hasVal && !hasFlat {
+		rawItem = item
+		return attrs, rawItem, flat
+	}
+
+	cleaned := make(map[string]any, len(item))
+	for k, v := range item {
+		if k == "@attrs" || k == "@val" || k == "@flat" {
+			continue
+		}
+		cleaned[k] = v
+	}
+
+	if !hasVal {
+		rawItem = cleaned
 	}
 
 	return attrs, rawItem, flat
@@ -684,7 +706,7 @@ func buildXSINamespace(prefix string, value any) string {
 }
 
 // PrettyPrint formats XML with indentation.
-func PrettyPrint(xmlBytes []byte) (string, error) {
+func PrettyPrint(xmlBytes []byte) ([]byte, error) {
 	var buf bytes.Buffer
 	decoder := xml.NewDecoder(bytes.NewReader(xmlBytes))
 	encoder := xml.NewEncoder(&buf)
@@ -693,20 +715,20 @@ func PrettyPrint(xmlBytes []byte) (string, error) {
 	for {
 		token, err := decoder.Token()
 		if err != nil {
-			if err.Error() == "EOF" {
+			if err == io.EOF {
 				break
 			}
-			return "", err
+			return nil, err
 		}
 		if token == nil {
 			break
 		}
 		if err := encoder.EncodeToken(token); err != nil {
-			return "", err
+			return nil, err
 		}
 	}
 	if err := encoder.Flush(); err != nil {
-		return "", err
+		return nil, err
 	}
 
 	result := buf.String()
@@ -714,10 +736,9 @@ func PrettyPrint(xmlBytes []byte) (string, error) {
 		result = `<?xml version="1.0" encoding="UTF-8"?>` + "\n" + result
 	}
 
-	re := regexp.MustCompile(`<\?xml[^?]*\?>`)
-	result = re.ReplaceAllStringFunc(result, func(s string) string {
+	result = xmlDeclRegexp.ReplaceAllStringFunc(result, func(s string) string {
 		return s + "\n"
 	})
 
-	return result, nil
+	return []byte(result), nil
 }

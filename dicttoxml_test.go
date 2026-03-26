@@ -718,8 +718,8 @@ func TestPrettyPrint(t *testing.T) {
 			t.Fatalf("expected no error, got %v", err)
 		}
 
-		if !strings.Contains(result, "\n") {
-			t.Errorf("expected formatted output with newlines, got %s", result)
+		if !strings.Contains(string(result), "\n") {
+			t.Errorf("expected formatted output with newlines, got %s", string(result))
 		}
 	})
 }
