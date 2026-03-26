@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/xml"
 	"fmt"
-	"math/rand"
+	"math/rand/v2"
 	"reflect"
 	"regexp"
 	"sort"
@@ -73,7 +73,7 @@ func MakeID(element string, start, end int) string {
 	if end == 0 {
 		end = 999999
 	}
-	return fmt.Sprintf("%s_%d", element, rand.Intn(end-start+1)+start)
+	return fmt.Sprintf("%s_%d", element, rand.IntN(end-start+1)+start)
 }
 
 // GetUniqueID generates a unique ID for a given element.
