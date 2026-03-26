@@ -40,6 +40,8 @@ type JSON2xml struct {
 	attrType    bool
 	itemWrap    bool
 	xpathFormat bool
+	cdata       bool
+	listHeaders bool
 }
 
 // New creates a new JSON2xml converter with default options.
@@ -52,6 +54,8 @@ func New(data any) *JSON2xml {
 		attrType:    true,
 		itemWrap:    true,
 		xpathFormat: false,
+		cdata:       false,
+		listHeaders: false,
 	}
 }
 
@@ -91,6 +95,18 @@ func (j *JSON2xml) WithXPathFormat(xpathFormat bool) *JSON2xml {
 	return j
 }
 
+// WithCDATA sets whether to wrap string values in CDATA sections.
+func (j *JSON2xml) WithCDATA(cdata bool) *JSON2xml {
+	j.cdata = cdata
+	return j
+}
+
+// WithListHeaders sets whether to repeat headers for each list item.
+func (j *JSON2xml) WithListHeaders(listHeaders bool) *JSON2xml {
+	j.listHeaders = listHeaders
+	return j
+}
+
 // ToXML converts the data to XML bytes.
 // Returns nil if data is empty or nil.
 func (j *JSON2xml) ToXML() ([]byte, error) {
@@ -117,6 +133,8 @@ func (j *JSON2xml) ToXML() ([]byte, error) {
 		ItemWrap:    j.itemWrap,
 		ItemFunc:    DefaultItemFunc,
 		XPathFormat: j.xpathFormat,
+		CDATA:       j.cdata,
+		ListHeaders: j.listHeaders,
 	}
 
 	xmlData := DictToXML(j.data, opts)
