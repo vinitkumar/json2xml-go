@@ -443,27 +443,45 @@ func Dict2XMLStr(opts Options, attrs map[string]any, item map[string]any, itemNa
 }
 
 // extractSpecialAttrs extracts @attrs, @val, and @flat from an item.
+// Returns a shallow copy of item with special keys removed to avoid mutating the caller's data.
 func extractSpecialAttrs(item map[string]any, defaultAttrs map[string]any) (attrs map[string]any, rawItem any, flat bool) {
 	attrs = defaultAttrs
-	rawItem = item
 
-	if customAttrs, ok := item["@attrs"]; ok {
+	customAttrs, hasAttrs := item["@attrs"]
+	val, hasVal := item["@val"]
+	flatVal, hasFlat := item["@flat"]
+
+	if hasAttrs {
 		if ca, ok := customAttrs.(map[string]any); ok {
 			attrs = ca
-			delete(item, "@attrs")
 		}
 	}
 
-	if val, ok := item["@val"]; ok {
+	if hasVal {
 		rawItem = val
-		delete(item, "@val")
 	}
 
-	if f, ok := item["@flat"]; ok {
-		if fb, ok := f.(bool); ok && fb {
+	if hasFlat {
+		if fb, ok := flatVal.(bool); ok && fb {
 			flat = true
 		}
-		delete(item, "@flat")
+	}
+
+	if !hasAttrs && !hasVal && !hasFlat {
+		rawItem = item
+		return attrs, rawItem, flat
+	}
+
+	cleaned := make(map[string]any, len(item))
+	for k, v := range item {
+		if k == "@attrs" || k == "@val" || k == "@flat" {
+			continue
+		}
+		cleaned[k] = v
+	}
+
+	if !hasVal {
+		rawItem = cleaned
 	}
 
 	return attrs, rawItem, flat
