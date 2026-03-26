@@ -15,6 +15,9 @@ import (
 // XPathFunctionsNS is the XPath 3.1 json-to-xml namespace.
 const XPathFunctionsNS = "http://www.w3.org/2005/xpath-functions"
 
+// xmlDeclRegexp matches XML declarations for pretty-print formatting.
+var xmlDeclRegexp = regexp.MustCompile(`<\?xml[^?]*\?>`)
+
 // ItemFunc is a function that generates element names for list items.
 type ItemFunc func(parent string) string
 
@@ -684,7 +687,7 @@ func buildXSINamespace(prefix string, value any) string {
 }
 
 // PrettyPrint formats XML with indentation.
-func PrettyPrint(xmlBytes []byte) (string, error) {
+func PrettyPrint(xmlBytes []byte) ([]byte, error) {
 	var buf bytes.Buffer
 	decoder := xml.NewDecoder(bytes.NewReader(xmlBytes))
 	encoder := xml.NewEncoder(&buf)
@@ -696,17 +699,17 @@ func PrettyPrint(xmlBytes []byte) (string, error) {
 			if err.Error() == "EOF" {
 				break
 			}
-			return "", err
+			return nil, err
 		}
 		if token == nil {
 			break
 		}
 		if err := encoder.EncodeToken(token); err != nil {
-			return "", err
+			return nil, err
 		}
 	}
 	if err := encoder.Flush(); err != nil {
-		return "", err
+		return nil, err
 	}
 
 	result := buf.String()
@@ -714,10 +717,9 @@ func PrettyPrint(xmlBytes []byte) (string, error) {
 		result = `<?xml version="1.0" encoding="UTF-8"?>` + "\n" + result
 	}
 
-	re := regexp.MustCompile(`<\?xml[^?]*\?>`)
-	result = re.ReplaceAllStringFunc(result, func(s string) string {
+	result = xmlDeclRegexp.ReplaceAllStringFunc(result, func(s string) string {
 		return s + "\n"
 	})
 
-	return result, nil
+	return []byte(result), nil
 }

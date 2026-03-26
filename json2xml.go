@@ -91,10 +91,9 @@ func (j *JSON2xml) WithXPathFormat(xpathFormat bool) *JSON2xml {
 	return j
 }
 
-// ToXML converts the data to XML.
-// Returns the XML as a string when pretty=true, or as bytes when pretty=false.
+// ToXML converts the data to XML bytes.
 // Returns nil if data is empty or nil.
-func (j *JSON2xml) ToXML() (any, error) {
+func (j *JSON2xml) ToXML() ([]byte, error) {
 	if j.data == nil {
 		return nil, nil
 	}
@@ -139,36 +138,12 @@ func (j *JSON2xml) ToXMLString() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if result == nil {
-		return "", nil
-	}
-
-	if s, ok := result.(string); ok {
-		return s, nil
-	}
-	if b, ok := result.([]byte); ok {
-		return string(b), nil
-	}
-	return "", nil
+	return string(result), nil
 }
 
 // ToXMLBytes converts the data to XML and returns it as bytes.
 func (j *JSON2xml) ToXMLBytes() ([]byte, error) {
-	result, err := j.ToXML()
-	if err != nil {
-		return nil, err
-	}
-	if result == nil {
-		return nil, nil
-	}
-
-	if s, ok := result.(string); ok {
-		return []byte(s), nil
-	}
-	if b, ok := result.([]byte); ok {
-		return b, nil
-	}
-	return nil, nil
+	return j.ToXML()
 }
 
 // ConvertToXML is a convenience function to convert JSON data to XML.
