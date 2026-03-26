@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/xml"
 	"fmt"
+	"io"
 	"math/rand/v2"
 	"reflect"
 	"regexp"
@@ -150,7 +151,7 @@ func KeyIsValidXML(key string) bool {
 	for {
 		tok, err := decoder.Token()
 		if err != nil {
-			return err.Error() == "EOF"
+			return err == io.EOF
 		}
 		if tok == nil {
 			break
@@ -714,7 +715,7 @@ func PrettyPrint(xmlBytes []byte) ([]byte, error) {
 	for {
 		token, err := decoder.Token()
 		if err != nil {
-			if err.Error() == "EOF" {
+			if err == io.EOF {
 				break
 			}
 			return nil, err
