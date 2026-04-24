@@ -75,6 +75,20 @@ func TestWithMethods(t *testing.T) {
 		}
 	})
 
+	t.Run("WithCDATA", func(t *testing.T) {
+		conv := New(nil).WithCDATA(true)
+		if !conv.cdata {
+			t.Error("expected cdata to be true")
+		}
+	})
+
+	t.Run("WithListHeaders", func(t *testing.T) {
+		conv := New(nil).WithListHeaders(true)
+		if !conv.listHeaders {
+			t.Error("expected listHeaders to be true")
+		}
+	})
+
 	t.Run("method chaining", func(t *testing.T) {
 		conv := New(nil).
 			WithWrapper("test").

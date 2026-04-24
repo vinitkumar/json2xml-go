@@ -113,7 +113,11 @@ func init() {
 }
 
 func usage() {
-	fmt.Fprintf(os.Stderr, `json2xml-go - Convert JSON to XML
+	usageTo(os.Stderr)
+}
+
+func usageTo(writer io.Writer) {
+	fmt.Fprintf(writer, `json2xml-go - Convert JSON to XML
 
 Usage:
   json2xml-go [flags] [input-file]
@@ -170,45 +174,49 @@ Examples:
 
 func main() {
 	flag.Parse()
+	os.Exit(run(os.Stdout, os.Stderr))
+}
 
+func run(stdout io.Writer, stderr io.Writer) int {
 	if showHelp {
-		usage()
-		os.Exit(0)
+		usageTo(stderr)
+		return 0
 	}
 
 	if showVersion {
-		fmt.Printf("json2xml-go version %s\n", version)
-		fmt.Printf("Author: %s <%s>\n", json2xml.Author, json2xml.Email)
-		os.Exit(0)
+		fmt.Fprintf(stdout, "json2xml-go version %s\n", version)
+		fmt.Fprintf(stdout, "Author: %s <%s>\n", json2xml.Author, json2xml.Email)
+		return 0
 	}
 
-	// Read input data
 	data, err := readInput()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error reading input: %v\n", err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "Error reading input: %v\n", err)
+		return 1
 	}
 
-	// Convert to XML
 	converter := json2xml.New(data).
 		WithWrapper(wrapper).
 		WithRoot(root).
 		WithPretty(pretty).
 		WithAttrType(attrType).
 		WithItemWrap(itemWrap).
-		WithXPathFormat(xpathFormat)
+		WithXPathFormat(xpathFormat).
+		WithCDATA(cdata).
+		WithListHeaders(listHeaders)
 
 	xmlOutput, err := converter.ToXMLString()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error converting to XML: %v\n", err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "Error converting to XML: %v\n", err)
+		return 1
 	}
 
-	// Write output
-	if err := writeOutput(xmlOutput); err != nil {
-		fmt.Fprintf(os.Stderr, "Error writing output: %v\n", err)
-		os.Exit(1)
+	if err := writeOutputTo(stdout, xmlOutput); err != nil {
+		fmt.Fprintf(stderr, "Error writing output: %v\n", err)
+		return 1
 	}
+
+	return 0
 }
 
 func readInput() (any, error) {
@@ -232,7 +240,10 @@ func readInput() (any, error) {
 	}
 
 	// Check if there's data on stdin
-	stat, _ := os.Stdin.Stat()
+	stat, err := os.Stdin.Stat()
+	if err != nil {
+		return nil, fmt.Errorf("failed to inspect stdin: %w", err)
+	}
 	if (stat.Mode() & os.ModeCharDevice) == 0 {
 		return readFromStdin()
 	}
@@ -255,10 +266,14 @@ func readFromStdin() (any, error) {
 }
 
 func writeOutput(output string) error {
+	return writeOutputTo(os.Stdout, output)
+}
+
+func writeOutputTo(writer io.Writer, output string) error {
 	if outputFile != "" {
 		return os.WriteFile(outputFile, []byte(output), 0644)
 	}
 
-	fmt.Println(output)
+	fmt.Fprintln(writer, output)
 	return nil
 }
