@@ -105,8 +105,12 @@ func TestToXML(t *testing.T) {
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
-		if !bytes.Contains(result, []byte("<all></all>")) {
-			t.Errorf("expected empty root element, got %s", result)
+		xmlBytes, ok := result.([]byte)
+		if !ok {
+			t.Fatalf("expected []byte, got %T", result)
+		}
+		if !bytes.Contains(xmlBytes, []byte("<all></all>")) {
+			t.Errorf("expected empty root element, got %s", xmlBytes)
 		}
 	})
 
@@ -115,8 +119,12 @@ func TestToXML(t *testing.T) {
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
-		if !bytes.Contains(result, []byte("<all></all>")) {
-			t.Errorf("expected empty root element, got %s", result)
+		xmlBytes, ok := result.([]byte)
+		if !ok {
+			t.Fatalf("expected []byte, got %T", result)
+		}
+		if !bytes.Contains(xmlBytes, []byte("<all></all>")) {
+			t.Errorf("expected empty root element, got %s", xmlBytes)
 		}
 	})
 

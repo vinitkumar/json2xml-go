@@ -444,41 +444,37 @@ func Dict2XMLStr(opts Options, attrs map[string]any, item map[string]any, itemNa
 
 // extractSpecialAttrs extracts @attrs, @val, and @flat from an item.
 func extractSpecialAttrs(item map[string]any, defaultAttrs map[string]any) (attrs map[string]any, rawItem any, flat bool) {
-<<<<<<< Updated upstream
-	attrs = defaultAttrs
-	rawItem = item
-||||||| Stash base
-	attrs = defaultAttrs
-=======
 	attrs = copyAttrs(defaultAttrs)
->>>>>>> Stashed changes
+	rawItem = copyItemWithoutSpecialAttrs(item)
 
 	if customAttrs, ok := item["@attrs"]; ok {
 		if ca, ok := customAttrs.(map[string]any); ok {
-<<<<<<< Updated upstream
-			attrs = ca
-			delete(item, "@attrs")
-||||||| Stash base
-			attrs = ca
-=======
 			attrs = copyAttrs(ca)
->>>>>>> Stashed changes
 		}
 	}
 
 	if val, ok := item["@val"]; ok {
 		rawItem = val
-		delete(item, "@val")
 	}
 
 	if f, ok := item["@flat"]; ok {
 		if fb, ok := f.(bool); ok && fb {
 			flat = true
 		}
-		delete(item, "@flat")
 	}
 
 	return attrs, rawItem, flat
+}
+
+func copyItemWithoutSpecialAttrs(item map[string]any) map[string]any {
+	copied := make(map[string]any, len(item))
+	for key, value := range item {
+		if key == "@attrs" || key == "@val" || key == "@flat" {
+			continue
+		}
+		copied[key] = value
+	}
+	return copied
 }
 
 // buildSubtree creates the XML subtree for a value.
