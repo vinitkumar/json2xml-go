@@ -889,6 +889,55 @@ func FuzzConvertKV(f *testing.F) {
 	})
 }
 
+func TestPythonParitySpecialAttributeBehavior(t *testing.T) {
+	t.Run("val nil emits empty element", func(t *testing.T) {
+		result := DictToXML(map[string]any{
+			"field": map[string]any{"@attrs": map[string]any{"source": "api"}, "@val": nil},
+		}, Options{Root: false, AttrType: false, ItemWrap: true, ItemFunc: DefaultItemFunc})
+
+		expected := []byte(`<field source="api"></field>`)
+		if !bytes.Equal(result, expected) {
+			t.Fatalf("expected %s, got %s", expected, result)
+		}
+		if bytes.Contains(result, []byte("<nil>")) {
+			t.Fatalf("nil leaked into XML: %s", result)
+		}
+	})
+
+	t.Run("special attrs do not mutate input", func(t *testing.T) {
+		attrs := map[string]any{"sku": "bike-1"}
+		data := map[string]any{"product": map[string]any{"@attrs": attrs, "@val": "Road bike"}}
+		result := DictToXML(data, Options{Root: false, AttrType: true, ItemWrap: true, ItemFunc: DefaultItemFunc})
+
+		if !bytes.Equal(result, []byte(`<product sku="bike-1">Road bike</product>`)) {
+			t.Fatalf("unexpected XML: %s", result)
+		}
+		if _, ok := attrs["type"]; ok {
+			t.Fatalf("input attrs were mutated: %#v", attrs)
+		}
+	})
+
+	t.Run("invalid names escape fallback once", func(t *testing.T) {
+		result := DictToXML(map[string]any{"a&b": "value"}, Options{Root: false, AttrType: false, ItemWrap: true, ItemFunc: DefaultItemFunc})
+		if !bytes.Equal(result, []byte(`<key name="a&amp;b">value</key>`)) {
+			t.Fatalf("unexpected XML: %s", result)
+		}
+	})
+
+	t.Run("flat suffix does not leak into scalar or dict tags", func(t *testing.T) {
+		opts := Options{Root: false, AttrType: false, ItemWrap: true, ItemFunc: DefaultItemFunc}
+		scalar := DictToXML(map[string]any{"name@flat": "Bike"}, opts)
+		nested := DictToXML(map[string]any{"item@flat": map[string]any{"name": "Bike"}}, opts)
+
+		if !bytes.Equal(scalar, []byte(`<name>Bike</name>`)) {
+			t.Fatalf("unexpected scalar XML: %s", scalar)
+		}
+		if !bytes.Equal(nested, []byte(`<item><name>Bike</name></item>`)) {
+			t.Fatalf("unexpected nested XML: %s", nested)
+		}
+	})
+}
+
 func FuzzConvertBool(f *testing.F) {
 	f.Add("flag", true, true, false)
 	f.Add("enabled", false, false, true)

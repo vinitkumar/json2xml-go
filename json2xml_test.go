@@ -100,23 +100,23 @@ func TestToXML(t *testing.T) {
 		}
 	})
 
-	t.Run("empty map returns nil", func(t *testing.T) {
-		result, err := New(map[string]any{}).ToXML()
+	t.Run("empty map converts", func(t *testing.T) {
+		result, err := New(map[string]any{}).WithPretty(false).ToXML()
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
-		if result != nil {
-			t.Errorf("expected nil, got %v", result)
+		if !bytes.Contains(result, []byte("<all></all>")) {
+			t.Errorf("expected empty root element, got %s", result)
 		}
 	})
 
-	t.Run("empty slice returns nil", func(t *testing.T) {
-		result, err := New([]any{}).ToXML()
+	t.Run("empty slice converts", func(t *testing.T) {
+		result, err := New([]any{}).WithPretty(false).ToXML()
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
-		if result != nil {
-			t.Errorf("expected nil, got %v", result)
+		if !bytes.Contains(result, []byte("<all></all>")) {
+			t.Errorf("expected empty root element, got %s", result)
 		}
 	})
 
