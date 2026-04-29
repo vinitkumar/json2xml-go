@@ -39,6 +39,8 @@ type JSON2xml struct {
 	pretty      bool
 	attrType    bool
 	itemWrap    bool
+	cdata       bool
+	listHeaders bool
 	xpathFormat bool
 }
 
@@ -51,6 +53,8 @@ func New(data any) *JSON2xml {
 		pretty:      true,
 		attrType:    true,
 		itemWrap:    true,
+		cdata:       false,
+		listHeaders: false,
 		xpathFormat: false,
 	}
 }
@@ -91,24 +95,24 @@ func (j *JSON2xml) WithXPathFormat(xpathFormat bool) *JSON2xml {
 	return j
 }
 
+// WithCDATA sets whether to wrap string values in CDATA sections.
+func (j *JSON2xml) WithCDATA(cdata bool) *JSON2xml {
+	j.cdata = cdata
+	return j
+}
+
+// WithListHeaders sets whether to repeat headers for each list item.
+func (j *JSON2xml) WithListHeaders(listHeaders bool) *JSON2xml {
+	j.listHeaders = listHeaders
+	return j
+}
+
 // ToXML converts the data to XML.
 // Returns the XML as a string when pretty=true, or as bytes when pretty=false.
-// Returns nil if data is empty or nil.
+// Returns nil only when data is nil.
 func (j *JSON2xml) ToXML() (any, error) {
 	if j.data == nil {
 		return nil, nil
-	}
-
-	// Check if data is an empty map or slice
-	switch v := j.data.(type) {
-	case map[string]any:
-		if len(v) == 0 {
-			return nil, nil
-		}
-	case []any:
-		if len(v) == 0 {
-			return nil, nil
-		}
 	}
 
 	opts := Options{
@@ -117,6 +121,8 @@ func (j *JSON2xml) ToXML() (any, error) {
 		AttrType:    j.attrType,
 		ItemWrap:    j.itemWrap,
 		ItemFunc:    DefaultItemFunc,
+		CDATA:       j.cdata,
+		ListHeaders: j.listHeaders,
 		XPathFormat: j.xpathFormat,
 	}
 

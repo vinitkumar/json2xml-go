@@ -75,6 +75,20 @@ func TestWithMethods(t *testing.T) {
 		}
 	})
 
+	t.Run("WithCDATA", func(t *testing.T) {
+		conv := New(nil).WithCDATA(true)
+		if !conv.cdata {
+			t.Error("expected cdata to be true")
+		}
+	})
+
+	t.Run("WithListHeaders", func(t *testing.T) {
+		conv := New(nil).WithListHeaders(true)
+		if !conv.listHeaders {
+			t.Error("expected listHeaders to be true")
+		}
+	})
+
 	t.Run("method chaining", func(t *testing.T) {
 		conv := New(nil).
 			WithWrapper("test").
@@ -100,23 +114,31 @@ func TestToXML(t *testing.T) {
 		}
 	})
 
-	t.Run("empty map returns nil", func(t *testing.T) {
-		result, err := New(map[string]any{}).ToXML()
+	t.Run("empty map converts", func(t *testing.T) {
+		result, err := New(map[string]any{}).WithPretty(false).ToXML()
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
-		if result != nil {
-			t.Errorf("expected nil, got %v", result)
+		xmlBytes, ok := result.([]byte)
+		if !ok {
+			t.Fatalf("expected []byte, got %T", result)
+		}
+		if !bytes.Contains(xmlBytes, []byte("<all></all>")) {
+			t.Errorf("expected empty root element, got %s", xmlBytes)
 		}
 	})
 
-	t.Run("empty slice returns nil", func(t *testing.T) {
-		result, err := New([]any{}).ToXML()
+	t.Run("empty slice converts", func(t *testing.T) {
+		result, err := New([]any{}).WithPretty(false).ToXML()
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
-		if result != nil {
-			t.Errorf("expected nil, got %v", result)
+		xmlBytes, ok := result.([]byte)
+		if !ok {
+			t.Fatalf("expected []byte, got %T", result)
+		}
+		if !bytes.Contains(xmlBytes, []byte("<all></all>")) {
+			t.Errorf("expected empty root element, got %s", xmlBytes)
 		}
 	})
 

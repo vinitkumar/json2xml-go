@@ -158,8 +158,6 @@ func KeyIsValidXML(key string) bool {
 
 // MakeValidXMLName tests an XML name and fixes it if invalid.
 func MakeValidXMLName(key string, attrs map[string]any) (string, map[string]any) {
-	key = EscapeXML(key)
-
 	if KeyIsValidXML(key) {
 		return key, attrs
 	}
@@ -173,9 +171,7 @@ func MakeValidXMLName(key string, attrs map[string]any) (string, map[string]any)
 		return keyWithUnderscores, attrs
 	}
 
-	keyClean := strings.ReplaceAll(key, ":", "")
-	keyClean = strings.ReplaceAll(keyClean, "@flat", "")
-	if KeyIsValidXML(keyClean) {
+	if strings.Contains(key, ":") && KeyIsValidXML(strings.ReplaceAll(key, ":", "")) {
 		return key, attrs
 	}
 
@@ -402,8 +398,15 @@ func ConvertDict(obj map[string]any, opts Options, parent string) string {
 			attrs["id"] = GetUniqueID(parent)
 		}
 
-		key, attrs = MakeValidXMLName(key, attrs)
-		output.WriteString(convertDictValue(key, val, attrs, opts, parent))
+		keyIsFlat := strings.HasSuffix(key, "@flat")
+		xmlKey := strings.TrimSuffix(key, "@flat")
+		xmlKey, attrs = MakeValidXMLName(xmlKey, attrs)
+		if keyIsFlat {
+			if _, ok := normalizeValue(val).([]any); ok {
+				xmlKey += "@flat"
+			}
+		}
+		output.WriteString(convertDictValue(xmlKey, val, attrs, opts, parent))
 	}
 
 	return output.String()
@@ -441,40 +444,62 @@ func Dict2XMLStr(opts Options, attrs map[string]any, item map[string]any, itemNa
 
 // extractSpecialAttrs extracts @attrs, @val, and @flat from an item.
 func extractSpecialAttrs(item map[string]any, defaultAttrs map[string]any) (attrs map[string]any, rawItem any, flat bool) {
-	attrs = defaultAttrs
-	rawItem = item
+	attrs = copyAttrs(defaultAttrs)
+	rawItem = copyItemWithoutSpecialAttrs(item)
 
 	if customAttrs, ok := item["@attrs"]; ok {
 		if ca, ok := customAttrs.(map[string]any); ok {
-			attrs = ca
-			delete(item, "@attrs")
+			attrs = copyAttrs(ca)
 		}
 	}
 
 	if val, ok := item["@val"]; ok {
 		rawItem = val
-		delete(item, "@val")
 	}
 
 	if f, ok := item["@flat"]; ok {
 		if fb, ok := f.(bool); ok && fb {
 			flat = true
 		}
-		delete(item, "@flat")
 	}
 
 	return attrs, rawItem, flat
 }
 
+func copyItemWithoutSpecialAttrs(item map[string]any) map[string]any {
+	copied := make(map[string]any, len(item))
+	for key, value := range item {
+		if key == "@attrs" || key == "@val" || key == "@flat" {
+			continue
+		}
+		copied[key] = value
+	}
+	return copied
+}
+
 // buildSubtree creates the XML subtree for a value.
 func buildSubtree(rawItem any, opts Options, itemName string) string {
 	if IsPrimitiveType(rawItem) {
-		if v, ok := rawItem.(string); ok {
+		switch v := rawItem.(type) {
+		case nil:
+			return ""
+		case string:
 			return EscapeXML(v)
+		case bool:
+			return strings.ToLower(fmt.Sprintf("%v", v))
+		default:
+			return EscapeXML(fmt.Sprintf("%v", rawItem))
 		}
-		return EscapeXML(fmt.Sprintf("%v", rawItem))
 	}
 	return Convert(rawItem, opts, itemName)
+}
+
+func copyAttrs(attrs map[string]any) map[string]any {
+	copied := make(map[string]any, len(attrs))
+	for key, value := range attrs {
+		copied[key] = value
+	}
+	return copied
 }
 
 // formatDictOutput formats the final dict XML output.
